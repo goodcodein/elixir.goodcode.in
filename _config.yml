@@ -7,7 +7,7 @@ title: Elixir good code
 subtitle:
 description: A collection of good coding practices for Elixir
 author: 12s12m
-language: English
+language: en
 timezone: UTC
 
 # URL
@@ -63,7 +63,7 @@ pagination_dir: page
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: apollo
+theme: landscape
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
@@ -98,3 +98,19 @@ marked:
   smartypants: true
 
 disqus_shortname: elixir-goodcode-in
+
+menu:
+    Blog: /
+    Archive: /archives/
+    Github: https://github.com/goodcodein/elixir.goodcode.in
+    Rss: /atom.xml
+
+favicon: /favicon.png
+logo: /favicon.png
+
+# Analytics
+# google-analytics:
+ga: UA-101997965-1
+
+# Copyright Infomation
+startyear: 2017
