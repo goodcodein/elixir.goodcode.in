@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://elixir.goodcode.in/"/>
-  <updated>2017-07-03T07:44:53.481Z</updated>
+  <updated>2017-07-03T08:00:43.957Z</updated>
   <id>http://elixir.goodcode.in/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://elixir.goodcode.in/2017/07/03/how-to-run-a-chunk-of-code-when-your-elixir-phoenix-app-starts/"/>
     <id>http://elixir.goodcode.in/2017/07/03/how-to-run-a-chunk-of-code-when-your-elixir-phoenix-app-starts/</id>
     <published>2017-07-03T12:48:15.000Z</published>
-    <updated>2017-07-03T07:44:53.481Z</updated>
+    <updated>2017-07-03T08:00:43.957Z</updated>
     
     <content type="html"><![CDATA[<p>There are two ways in which you can run some code whenever your Elixir/Phoenix
 application starts.</p>
@@ -73,7 +73,7 @@ application starts.&lt;/p&gt;
     <link href="http://elixir.goodcode.in/2017/07/03/hello-world/"/>
     <id>http://elixir.goodcode.in/2017/07/03/hello-world/</id>
     <published>2017-07-03T12:00:00.000Z</published>
-    <updated>2017-07-03T07:47:17.344Z</updated>
+    <updated>2017-07-03T08:00:43.957Z</updated>
     
     <content type="html"><![CDATA[<p>Hello, World!</p>
 <p>In this blog, I’ll try to share the good coding practices that I have learnt while writing Elixir!</p>
