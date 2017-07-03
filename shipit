@@ -1,0 +1,3 @@
+#!/bin/bash -e
+hexo clean
+hexo deploy
