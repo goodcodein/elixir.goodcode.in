@@ -110,7 +110,7 @@ logo: /favicon.png
 
 # Analytics
 # google-analytics:
-ga: UA-101997965-1
+google_analytics: UA-101997965-1
 
 # Copyright Infomation
 startyear: 2017
