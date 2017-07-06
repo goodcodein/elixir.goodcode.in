@@ -8,8 +8,10 @@ tags:
 - startup
 ---
 
-There are two ways in which you can run some code whenever your Elixir/Phoenix
+There are ~~two~~ three ways in which you can run some code whenever your Elixir/Phoenix
 application starts.
+
+I have actually found there is an easy way to do this using the [Task](https://hexdocs.pm/elixir/Task.html) module
 
   1. Put the code directly in your `application.ex`
 
@@ -91,3 +93,45 @@ application starts.
     It sends itself a message in the `init` callback, so as soon as it starts up it enters the `handle_info(:work, state)` callback.
     This is where you would have the code which would run at startup. And once your code is executed, our `handle_info` callback returns
     a `{:stop, :normal, state}` which signals the GenServer to exit nicely. The supervisor on seeing the CacheWarmer GenServer exit normally accepts that the CacheWarmer worker's time has come and doesn't try to restart it.
+
+  3. Use the [Task](https://hexdocs.pm/elixir/Task.html) module to start a supervised async worker using the following code:
+
+    ```
+    defmodule Danny.Application do
+      use Application
+
+      # ...
+      def start(_type, _args) do
+        children = [
+          supervisor(Danny.Repo, []),
+          # ...
+          worker(Task, [&CacheWarmer.warm/0], restart: :temporary) # this worker starts, does its thing and dies
+          # ...
+          ]
+
+        opts = [strategy: :one_for_one, name: Danny.Supervisor]
+        Supervisor.start_link(children, opts)
+      end
+
+    end
+
+    defmodule CacheWarmer do
+      import Logger, only: [debug: 1]
+
+      def warm do
+        # warming the caches
+        debug "warming the cache"
+        # ...
+        debug "finished warming the cache, shutting down"
+      end
+    end
+
+    ```
+
+    In this version, the only additional code you need to write to is a one liner in your application.ex
+
+    ```
+    worker(Task, [&CacheWarmer.warm/0], restart: :temporary) # this worker starts, does its thing and dies
+    ```
+
+    This is much simpler, I'll be using this moving forward :)
