@@ -5,17 +5,17 @@
   
   <title>How to run a chunk of code when your Elixir/Phoenix app starts | Elixir good code</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="There are two ways in which you can run some code whenever your Elixir/Phoenix application starts.  Put the code directly in your application.ex 12345678910111213defmodule Danny.Application do  use Ap">
+  <meta name="description" content="There are two three ways in which you can run some code whenever your Elixir/Phoenix application starts. I have actually found there is an easy way to do this using the Task module  Put the code direc">
 <meta name="keywords" content="elixir,phoenix,gen_stage,startup">
 <meta property="og:type" content="article">
 <meta property="og:title" content="How to run a chunk of code when your Elixir&#x2F;Phoenix app starts">
 <meta property="og:url" content="http://elixir.goodcode.in/2017/07/03/how-to-run-a-chunk-of-code-when-your-elixir-phoenix-app-starts/index.html">
 <meta property="og:site_name" content="Elixir good code">
-<meta property="og:description" content="There are two ways in which you can run some code whenever your Elixir/Phoenix application starts.  Put the code directly in your application.ex 12345678910111213defmodule Danny.Application do  use Ap">
-<meta property="og:updated_time" content="2017-07-03T08:00:43.957Z">
+<meta property="og:description" content="There are two three ways in which you can run some code whenever your Elixir/Phoenix application starts. I have actually found there is an easy way to do this using the Task module  Put the code direc">
+<meta property="og:updated_time" content="2017-07-06T10:51:01.541Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="How to run a chunk of code when your Elixir&#x2F;Phoenix app starts">
-<meta name="twitter:description" content="There are two ways in which you can run some code whenever your Elixir/Phoenix application starts.  Put the code directly in your application.ex 12345678910111213defmodule Danny.Application do  use Ap">
+<meta name="twitter:description" content="There are two three ways in which you can run some code whenever your Elixir/Phoenix application starts. I have actually found there is an easy way to do this using the Task module  Put the code direc">
 <meta name="twitter:creator" content="@12s12m">
   
     <link rel="alternate" href="/atom.xml" title="Elixir good code" type="application/atom+xml">
@@ -100,8 +100,9 @@ ga('send', 'pageview');
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>There are two ways in which you can run some code whenever your Elixir/Phoenix
+        <p>There are <del>two</del> three ways in which you can run some code whenever your Elixir/Phoenix
 application starts.</p>
+<p>I have actually found there is an easy way to do this using the <a href="https://hexdocs.pm/elixir/Task.html" target="_blank" rel="external">Task</a> module</p>
 <ol>
 <li><p>Put the code directly in your <code>application.ex</code></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">defmodule Danny.Application do</div><div class="line">  use Application</div><div class="line"></div><div class="line">  # ...</div><div class="line">  def start(_type, _args) do</div><div class="line">    # ...</div><div class="line">    &#123;:ok, pid&#125; = Supervisor.start_link(children, opts)</div><div class="line">    # code to run at startup</div><div class="line">    MyStartupCode.run</div><div class="line">    &#123;:ok, pid&#125;</div><div class="line">  end</div><div class="line"></div><div class="line">end</div></pre></td></tr></table></figure>
@@ -123,12 +124,18 @@ It sends itself a message in the <code>init</code> callback, so as soon as it st
 This is where you would have the code which would run at startup. And once your code is executed, our <code>handle_info</code> callback returns
 a <code>{:stop, :normal, state}</code> which signals the GenServer to exit nicely. The supervisor on seeing the CacheWarmer GenServer exit normally accepts that the CacheWarmer worker’s time has come and doesn’t try to restart it.</p>
 </li>
+<li><p>Use the <a href="https://hexdocs.pm/elixir/Task.html" target="_blank" rel="external">Task</a> module to start a supervised async worker using the following code:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">defmodule Danny.Application do</div><div class="line">  use Application</div><div class="line"></div><div class="line">  # ...</div><div class="line">  def start(_type, _args) do</div><div class="line">    children = [</div><div class="line">      supervisor(Danny.Repo, []),</div><div class="line">      # ...</div><div class="line">      worker(Task, [&amp;CacheWarmer.warm/0], restart: :temporary) # this worker starts, does its thing and dies</div><div class="line">      # ...</div><div class="line">      ]</div><div class="line"></div><div class="line">    opts = [strategy: :one_for_one, name: Danny.Supervisor]</div><div class="line">    Supervisor.start_link(children, opts)</div><div class="line">  end</div><div class="line"></div><div class="line">end</div><div class="line"></div><div class="line">defmodule CacheWarmer do</div><div class="line">  import Logger, only: [debug: 1]</div><div class="line"></div><div class="line">  def warm do</div><div class="line">    # warming the caches</div><div class="line">    debug &quot;warming the cache&quot;</div><div class="line">    # ...</div><div class="line">    debug &quot;finished warming the cache, shutting down&quot;</div><div class="line">  end</div><div class="line">end</div></pre></td></tr></table></figure>
+<p>In this version, the only additional code you need to write to is a one liner in your application.ex</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">worker(Task, [&amp;CacheWarmer.warm/0], restart: :temporary) # this worker starts, does its thing and dies</div></pre></td></tr></table></figure>
+<p>This is much simpler, I’ll be using this moving forward :)</p>
+</li>
 </ol>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://elixir.goodcode.in/2017/07/03/how-to-run-a-chunk-of-code-when-your-elixir-phoenix-app-starts/" data-id="cj4qhd5rq0001tnak4rjveu6n" class="article-share-link">Share</a>
+      <a data-url="http://elixir.goodcode.in/2017/07/03/how-to-run-a-chunk-of-code-when-your-elixir-phoenix-app-starts/" data-id="cj4sbaxag0001bqak35k3u1sh" class="article-share-link">Share</a>
       
         <a href="http://elixir.goodcode.in/2017/07/03/how-to-run-a-chunk-of-code-when-your-elixir-phoenix-app-starts/#disqus_thread" class="article-comment-link">Comments</a>
       

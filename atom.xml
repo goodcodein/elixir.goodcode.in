@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://elixir.goodcode.in/"/>
-  <updated>2017-07-03T08:00:43.957Z</updated>
+  <updated>2017-07-06T10:51:01.541Z</updated>
   <id>http://elixir.goodcode.in/</id>
   
   <author>
@@ -20,10 +20,11 @@
     <link href="http://elixir.goodcode.in/2017/07/03/how-to-run-a-chunk-of-code-when-your-elixir-phoenix-app-starts/"/>
     <id>http://elixir.goodcode.in/2017/07/03/how-to-run-a-chunk-of-code-when-your-elixir-phoenix-app-starts/</id>
     <published>2017-07-03T12:48:15.000Z</published>
-    <updated>2017-07-03T08:00:43.957Z</updated>
+    <updated>2017-07-06T10:51:01.541Z</updated>
     
-    <content type="html"><![CDATA[<p>There are two ways in which you can run some code whenever your Elixir/Phoenix
+    <content type="html"><![CDATA[<p>There are <del>two</del> three ways in which you can run some code whenever your Elixir/Phoenix
 application starts.</p>
+<p>I have actually found there is an easy way to do this using the <a href="https://hexdocs.pm/elixir/Task.html" target="_blank" rel="external">Task</a> module</p>
 <ol>
 <li><p>Put the code directly in your <code>application.ex</code></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">defmodule Danny.Application do</div><div class="line">  use Application</div><div class="line"></div><div class="line">  # ...</div><div class="line">  def start(_type, _args) do</div><div class="line">    # ...</div><div class="line">    &#123;:ok, pid&#125; = Supervisor.start_link(children, opts)</div><div class="line">    # code to run at startup</div><div class="line">    MyStartupCode.run</div><div class="line">    &#123;:ok, pid&#125;</div><div class="line">  end</div><div class="line"></div><div class="line">end</div></pre></td></tr></table></figure>
@@ -45,15 +46,20 @@ It sends itself a message in the <code>init</code> callback, so as soon as it st
 This is where you would have the code which would run at startup. And once your code is executed, our <code>handle_info</code> callback returns
 a <code>{:stop, :normal, state}</code> which signals the GenServer to exit nicely. The supervisor on seeing the CacheWarmer GenServer exit normally accepts that the CacheWarmer worker’s time has come and doesn’t try to restart it.</p>
 </li>
+<li><p>Use the <a href="https://hexdocs.pm/elixir/Task.html" target="_blank" rel="external">Task</a> module to start a supervised async worker using the following code:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">defmodule Danny.Application do</div><div class="line">  use Application</div><div class="line"></div><div class="line">  # ...</div><div class="line">  def start(_type, _args) do</div><div class="line">    children = [</div><div class="line">      supervisor(Danny.Repo, []),</div><div class="line">      # ...</div><div class="line">      worker(Task, [&amp;CacheWarmer.warm/0], restart: :temporary) # this worker starts, does its thing and dies</div><div class="line">      # ...</div><div class="line">      ]</div><div class="line"></div><div class="line">    opts = [strategy: :one_for_one, name: Danny.Supervisor]</div><div class="line">    Supervisor.start_link(children, opts)</div><div class="line">  end</div><div class="line"></div><div class="line">end</div><div class="line"></div><div class="line">defmodule CacheWarmer do</div><div class="line">  import Logger, only: [debug: 1]</div><div class="line"></div><div class="line">  def warm do</div><div class="line">    # warming the caches</div><div class="line">    debug &quot;warming the cache&quot;</div><div class="line">    # ...</div><div class="line">    debug &quot;finished warming the cache, shutting down&quot;</div><div class="line">  end</div><div class="line">end</div></pre></td></tr></table></figure>
+<p>In this version, the only additional code you need to write to is a one liner in your application.ex</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">worker(Task, [&amp;CacheWarmer.warm/0], restart: :temporary) # this worker starts, does its thing and dies</div></pre></td></tr></table></figure>
+<p>This is much simpler, I’ll be using this moving forward :)</p>
+</li>
 </ol>
 ]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;There are two ways in which you can run some code whenever your Elixir/Phoenix
+      &lt;p&gt;There are &lt;del&gt;two&lt;/del&gt; three ways in which you can run some code whenever your Elixir/Phoenix
 application starts.&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;p&gt;Put the code directly 
+&lt;p&gt;I have actuall
     
     </summary>
     
